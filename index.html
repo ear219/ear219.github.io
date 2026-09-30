@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eric Reznikov — Finance &amp; Data Science</title>
+<meta name="description" content="Eric Reznikov — Rutgers finance student building automation tools for portfolio reporting and rebalancing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #0E1A26;
+    --ink-2: #142234;
+    --ink-3: #1B2C41;
+    --paper: #F3EFE3;
+    --paper-line: #D9CFB6;
+    --gold: #C6A15B;
+    --gold-soft: rgba(198,161,91,0.35);
+    --sage: #7C9C8B;
+    --text-light: #E9E4D6;
+    --text-muted: #8FA0AE;
+    --text-dark: #1A2430;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --max: 760px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  body{
+    margin: 0;
+    background: var(--ink);
+    color: var(--text-light);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    background-image:
+      repeating-linear-gradient(to bottom, rgba(233,228,214,0.028) 0px, rgba(233,228,214,0.028) 1px, transparent 1px, transparent 34px);
+  }
+
+  a{ color: inherit; }
+  a:focus-visible, button:focus-visible{
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  .wrap{
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---------- Header ---------- */
+  .site-header{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(14,26,38,0.86);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(233,228,214,0.1);
+  }
+  .site-header .wrap{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+  .site-header .name{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+  }
+  .site-header nav{
+    display: flex;
+    gap: 24px;
+  }
+  .site-header nav a{
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .site-header nav a:hover{
+    color: var(--text-light);
+    border-color: var(--gold-soft);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding: 96px 0 88px;
+  }
+  .hero-meta{
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--sage);
+    letter-spacing: 0.02em;
+    margin-bottom: 22px;
+  }
+  .hero h1{
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(1.9rem, 4.4vw, 2.9rem);
+    line-height: 1.22;
+    margin: 0 0 8px;
+    max-width: 15ch;
+  }
+  .hero-rule{
+    width: 0;
+    height: 2px;
+    background: var(--gold);
+    margin: 26px 0 26px;
+    animation: draw 1.1s cubic-bezier(.4,0,.2,1) 0.25s forwards;
+  }
+  @keyframes draw{
+    to{ width: 84px; }
+  }
+  .hero p.lede{
+    max-width: 56ch;
+    color: var(--text-light);
+    opacity: 0.86;
+    font-size: 1.02rem;
+  }
+
+  /* ---------- Section shell ---------- */
+  section{ scroll-margin-top: 84px; }
+  .section-block{
+    padding: 64px 0;
+    border-top: 1px solid rgba(233,228,214,0.1);
+  }
+  .section-block h2{
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.6rem;
+    margin: 0 0 34px;
+  }
+
+  /* ---------- Skills (ledger) ---------- */
+  .ledger{
+    background: var(--paper);
+    color: var(--text-dark);
+    border-radius: 3px;
+  }
+  .ledger-row{
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 18px;
+    padding: 20px 28px 20px 26px;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .ledger-row:first-child{ border-radius: 3px 3px 0 0; }
+  .ledger-row:last-child{ border-bottom: none; border-radius: 0 0 3px 3px; }
+  .ledger-label{
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: #55483A;
+    padding-top: 2px;
+    min-width: 0;
+  }
+  .ledger-items{
+    font-size: 0.96rem;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .ledger-items .tag{
+    display: inline;
+  }
+  .ledger-items .tag:not(:last-child)::after{
+    content: "·";
+    margin: 0 8px;
+    color: #B7A87F;
+  }
+
+  @media (max-width: 560px){
+    .ledger-row{ grid-template-columns: 1fr; gap: 6px; }
+  }
+
+  /* ---------- Involvement ---------- */
+  .role-list{
+    display: flex;
+    flex-direction: column;
+  }
+  .role{
+    padding: 22px 0;
+    border-bottom: 1px solid rgba(233,228,214,0.12);
+  }
+  .role:first-child{ padding-top: 0; }
+  .role:last-child{ border-bottom: none; }
+  .role-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px 20px;
+    flex-wrap: wrap;
+  }
+  .role-title{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.05rem;
+  }
+  .role-title span{
+    font-family: var(--sans);
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+  .role-dates{
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: var(--sage);
+    white-space: nowrap;
+  }
+  .role p{
+    margin: 8px 0 0;
+    opacity: 0.82;
+    font-size: 0.93rem;
+    max-width: 58ch;
+  }
+
+  /* ---------- Projects ---------- */
+  .project-list{
+    display: flex;
+    flex-direction: column;
+  }
+  .project{
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 8px 20px;
+    padding: 30px 0;
+    border-bottom: 1px solid rgba(233,228,214,0.12);
+  }
+  .project:first-child{ padding-top: 0; }
+  .project:last-child{ border-bottom: none; }
+  .project-index{
+    font-family: var(--mono);
+    color: var(--gold);
+    font-size: 0.85rem;
+    padding-top: 5px;
+  }
+  .project h3{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.18rem;
+    margin: 0 0 10px;
+  }
+  .project p{
+    margin: 0 0 14px;
+    color: var(--text-light);
+    opacity: 0.85;
+    max-width: 58ch;
+    font-size: 0.97rem;
+  }
+  .project-tech{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    margin-bottom: 12px;
+  }
+  .project-tech span{
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--sage);
+    border: 1px solid rgba(124,156,139,0.4);
+    border-radius: 3px;
+    padding: 3px 8px;
+  }
+  .project-link{
+    font-size: 0.86rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--text-muted);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .project-link:hover{
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  @media (max-width: 560px){
+    .project{ grid-template-columns: 1fr; }
+    .project-index{ padding-top: 0; }
+  }
+
+  /* ---------- Contact ---------- */
+  .contact p{
+    max-width: 52ch;
+    opacity: 0.86;
+    margin: 0 0 26px;
+  }
+  .contact-links{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 28px;
+  }
+  .contact-links a{
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    color: var(--text-light);
+    border-bottom: 1px solid var(--gold-soft);
+    padding-bottom: 2px;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .contact-links a:hover{
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  footer{
+    padding: 40px 0 60px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <span class="name">Eric Reznikov</span>
+    <nav>
+      <a href="#education">Education</a>
+      <a href="#skills">Skills</a>
+      <a href="#involvement">Involvement</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-meta">RUTGERS UNIVERSITY — B.S. FINANCE, CLASS OF 2029</div>
+    <h1>I'm Eric Reznikov — a Rutgers finance student who builds the automation tools wealth-management teams run on every day.</h1>
+    <div class="hero-rule"></div>
+    <p class="lede">I'm an AI Automation Intern at Vilga Financial Planning, where I build the Python and Excel tools behind portfolio reporting and rebalancing, on top of coursework in financial statement analysis and applied data science. 3.93 GPA, Dean's List, National Honor Society.</p>
+  </section>
+
+  <section id="education" class="section-block wrap">
+    <h2>Education</h2>
+    <div class="ledger">
+      <div class="ledger-row">
+        <div class="ledger-label">Rutgers University</div>
+        <div class="ledger-items">
+          <span class="tag">B.S. in Finance, expected May 2029</span>
+          <span class="tag">GPA 3.93 / 4.0</span>
+          <span class="tag">Dean's List</span>
+          <span class="tag">National Honor Society</span>
+          <span class="tag">Evan R. Gallucio Scholarship</span>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label">Coursework</div>
+        <div class="ledger-items">
+          <span class="tag">Microeconomics</span>
+          <span class="tag">Macroeconomics</span>
+          <span class="tag">Data 101</span>
+          <span class="tag">Investing</span>
+          <span class="tag">Intro to Business</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="section-block wrap">
+    <h2>Skills</h2>
+    <div class="ledger">
+      <div class="ledger-row">
+        <div class="ledger-label">Finance &amp; analysis</div>
+        <div class="ledger-items">
+          <span class="tag">Portfolio construction &amp; rebalancing</span>
+          <span class="tag">Financial statement analysis (10-K / 10-Q)</span>
+          <span class="tag">§351 exchange rules</span>
+          <span class="tag">Investment research</span>
+          <span class="tag">Client-facing reporting</span>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label">Programming &amp; data</div>
+        <div class="ledger-items">
+          <span class="tag">Python (pandas, openpyxl, xlwings, tkinter)</span>
+          <span class="tag">VBA</span>
+          <span class="tag">R</span>
+          <span class="tag">Claude Code</span>
+          <span class="tag">Excel modeling (INDEX/MATCH, data tables, What-If Analysis)</span>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label">Tools &amp; platforms</div>
+        <div class="ledger-items">
+          <span class="tag">Excel/VBA macro development</span>
+          <span class="tag">MS Office</span>
+          <span class="tag">RightCapital exports</span>
+          <span class="tag">REST API integration</span>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label">Certifications</div>
+        <div class="ledger-items">
+          <span class="tag">Bloomberg Market Concepts</span>
+          <span class="tag">Wall Street Prep — Excel</span>
+          <span class="tag">Wall Street Prep — Accounting &amp; Financial Statement Analysis</span>
+          <span class="tag">Wall Street Prep — Analyzing Financial Reports</span>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label">Languages</div>
+        <div class="ledger-items">
+          <span class="tag">English</span>
+          <span class="tag">Russian</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="involvement" class="section-block wrap">
+    <h2>Leadership &amp; Involvement</h2>
+    <div class="role-list">
+
+      <div class="role">
+        <div class="role-head">
+          <div class="role-title">Little Investment Bankers of Rutgers <span>— Active Member</span></div>
+          <div class="role-dates">Sept 2025 – Present</div>
+        </div>
+        <p>Attend workshops on technical finance skills and network with ambassadors from banks across the industry.</p>
+      </div>
+
+      <div class="role">
+        <div class="role-head">
+          <div class="role-title">Road to Wall Street Program <span>— Active Member</span></div>
+          <div class="role-dates">Apr 2026 – Present</div>
+        </div>
+        <p>Training through Excel, accounting, and financial modeling certifications, alongside case studies and interview prep.</p>
+      </div>
+
+      <div class="role">
+        <div class="role-head">
+          <div class="role-title">Investment Club, Glen Rock <span>— Founding Member / Officer</span></div>
+          <div class="role-dates">Sept 2023 – Jun 2025</div>
+        </div>
+        <p>Co-founded and helped manage a simulated stock portfolio that placed 6th in the Ithaca Business Competition.</p>
+      </div>
+
+      <div class="role">
+        <div class="role-head">
+          <div class="role-title">Glen Rock Wrestling <span>— Team Captain</span></div>
+          <div class="role-dates">Nov 2023 – Feb 2025</div>
+        </div>
+        <p>Led practices and mentored teammates, building the discipline that carries into deadline-driven finance work.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="projects" class="section-block wrap">
+    <h2>Projects</h2>
+    <p style="opacity:0.75; margin: -18px 0 34px; max-width: 56ch; font-size: 0.95rem;">Selected work from my internship as an AI Automation Intern at Vilga Financial Planning.</p>
+    <div class="project-list">
+
+      <article class="project">
+        <div class="project-index">01</div>
+        <div>
+          <h3>Portfolio Holdings Reporting System</h3>
+          <p>Built a macro-enabled Excel workbook from scratch that consolidates RightCapital exports into per-household holdings and balance-sheet reports. VBA modules handle CSV imports, dropdown-driven client selection, asset-class summaries, and validation flagging, backed by a Python (openpyxl / tkinter) fallback.</p>
+          <div class="project-tech">
+            <span>VBA</span><span>Excel</span><span>Python</span><span>openpyxl</span>
+          </div>
+          <a class="project-link" href="#">Private repository — code available on request</a>
+        </div>
+      </article>
+
+      <article class="project">
+        <div class="project-index">02</div>
+        <div>
+          <h3>Rebalancing &amp; §351 Exchange Optimizer</h3>
+          <p>Contributing to a DEV/PROD Python and Excel rebalancing tool built on xlwings, including a §351 exchange optimizer for fund-contribution allocations. Debugged the optimizer's core priority-ordering logic and built a standalone S&amp;P 500 constituent data script using SSGA's SPY holdings file and the FMP API.</p>
+          <div class="project-tech">
+            <span>Python</span><span>xlwings</span><span>Excel</span><span>REST APIs</span>
+          </div>
+          <a class="project-link" href="#">Private repository — code available on request</a>
+        </div>
+      </article>
+
+      <article class="project">
+        <div class="project-index">03</div>
+        <div>
+          <h3>Client Financial Education Content</h3>
+          <p>Wrote and built branded HTML articles for client-facing distribution, including an IPO education piece grounded in verified research — Dimensional's IPO underperformance study and Jay Ritter's first-day return data — built to the firm's brand system.</p>
+          <div class="project-tech">
+            <span>HTML/CSS</span><span>Financial research</span>
+          </div>
+          <a class="project-link" href="#">Writing sample available on request</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section id="contact" class="section-block wrap contact">
+    <h2>Contact</h2>
+    <p>Best reached by email — happy to talk finance, data, or automation.</p>
+    <div class="contact-links">
+      <a href="mailto:eric.reznikov@gmail.com">eric.reznikov@gmail.com</a>
+      <a href="https://www.linkedin.com/in/eric-reznikov-350995331">linkedin.com/in/eric-reznikov-350995331</a>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  © 2026 Eric Reznikov.
+</footer>
+
+</body>
+</html>
